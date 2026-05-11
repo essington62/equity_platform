@@ -1,0 +1,11 @@
+data_lake:
+  lacie: "/Volumes/LaCie/MLGeral/data_lake/crypto-market-state"
+  local: "/Users/brown/Documents/MLGeral/crypto_v2/crypto-market-state/data"
+
+chromadb:
+  path: "/Volumes/LaCie/MLGeral/chromadb"
+
+paths:
+  inbox: "/Volumes/LaCie/MLGeral/equity_platform/inbox"
+  processed: "/Volumes/LaCie/MLGeral/equity_platform/processed"
+  models: "/Volumes/LaCie/MLGeral/models"
