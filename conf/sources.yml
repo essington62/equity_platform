@@ -1,0 +1,347 @@
+# conf/sources.yml
+# Fontes de inteligência para o Narrative Engine
+# Atualizado: 2026-05-11
+
+# ═══════════════════════════════════════
+# YOUTUBE — BRASIL MACRO
+# ═══════════════════════════════════════
+
+youtube:
+  brasil_macro:
+    - name: "Genial Investimentos"
+      language: "pt"
+      priority: 1
+      focus: [macro_brasil, ibovespa, abertura, fechamento]
+      notes: "Morning call e fechamento diário"
+
+    - name: "Nord Research"
+      language: "pt"
+      priority: 2
+      focus: [macro_brasil, acoes, renda_fixa]
+
+    - name: "XP Investimentos"
+      language: "pt"
+      priority: 3
+      focus: [macro_brasil, estrategia, acoes]
+
+    - name: "BTG Pactual"
+      language: "pt"
+      priority: 3
+      focus: [macro_brasil, credito, estrategia]
+
+    - name: "Itaú BBA"
+      language: "pt"
+      priority: 3
+      focus: [macro_brasil, macro_global, estrategia]
+
+  # ═══════════════════════════════════════
+  # YOUTUBE — MACRO GLOBAL
+  # ═══════════════════════════════════════
+
+  global_macro:
+    - name: "Real Vision"
+      language: "en"
+      priority: 1
+      focus: [macro_global, emergentes, commodities, bears]
+      notes: "Entrevistas com Druckenmiller, Grantham, Burry"
+
+    - name: "Macro Voices"
+      language: "en"
+      priority: 2
+      focus: [macro_global, commodities, juros, fed]
+      notes: "Erik Townsend — foco em commodities e macro"
+
+    - name: "Blockworks Macro"
+      language: "en"
+      priority: 2
+      focus: [fed, juros, liquidez, macro_global]
+      notes: "Felix e Jack — Fed e liquidez global"
+
+    - name: "Grant Williams TTMYGH"
+      language: "en"
+      priority: 3
+      focus: [bears, historia, macro, ouro]
+      notes: "Things That Make You Go Hmmm — visão histórica"
+
+    - name: "Alhambra Investments"
+      language: "en"
+      priority: 3
+      focus: [liquidez, eurodolar, macro_global]
+      notes: "Jeff Snider — sistema eurodólar"
+
+  # ═══════════════════════════════════════
+  # YOUTUBE — AI / TECH
+  # ═══════════════════════════════════════
+
+  ai_tech:
+    - name: "SemiAnalysis"
+      language: "en"
+      priority: 1
+      focus: [semicondutores, ai_infra, chips, data_center]
+      notes: "Dylan Patel — análise técnica profunda"
+
+    - name: "Acquired Podcast"
+      language: "en"
+      priority: 2
+      focus: [tech, empresas, estrategia]
+      notes: "Deep dives em grandes empresas tech"
+
+    - name: "All-In Podcast"
+      language: "en"
+      priority: 2
+      focus: [ai, tech, silicon_valley, macro]
+      notes: "Chamath, Sacks, Friedberg, Palihapitiya"
+
+  # ═══════════════════════════════════════
+  # YOUTUBE — COMMODITIES
+  # ═══════════════════════════════════════
+
+  commodities:
+    - name: "Hedgeye"
+      language: "en"
+      priority: 1
+      focus: [commodities, energia, ciclo_industrial]
+
+    - name: "Doomberg"
+      language: "en"
+      priority: 2
+      focus: [energia, commodities, politica_industrial]
+      notes: "Anônimo — análise energia e commodities"
+
+    - name: "Kuppy Adventures in Capitalism"
+      language: "en"
+      priority: 2
+      focus: [commodities, value, emergentes]
+      notes: "Harris Kupperman — commodities trader"
+
+# ═══════════════════════════════════════
+# PDFs — GESTORES BEARS / MACRO CRÍTICOS
+# ═══════════════════════════════════════
+
+pdfs:
+  inbox_path: "/Volumes/LaCie/MLGeral/equity_platform/inbox/"
+  processed_path: "/Volumes/LaCie/MLGeral/equity_platform/processed/"
+
+  # --- BEARS ESTRUTURAIS ---
+
+  managers:
+    - name: "Howard Marks — Oaktree Memos"
+      type: pdf_manual
+      priority: 1
+      focus: [bear, valuations, ciclo, credito]
+      url_source: "https://www.oaktreecapital.com/insights"
+      frequency: monthly
+      notes: >
+        Memos gratuitos. Baixar manualmente e colocar em inbox/.
+        Um dos mais importantes — processo de pensamento
+        sobre ciclos e risco.
+
+    - name: "Jeremy Grantham — GMO Letters"
+      type: pdf_manual
+      priority: 1
+      focus: [bear, bolha, valuations, clima]
+      url_source: "https://www.gmo.com/americas/research-library/"
+      frequency: quarterly
+      notes: >
+        Cadastro gratuito necessário.
+        Foco em valuations extremos e bolhas históricas.
+        Previu 2000, 2008, 2021.
+
+    - name: "Michael Burry — SEC 13F Scion"
+      type: pdf_sec
+      priority: 1
+      focus: [bear, posicoes, short, bolha_tech]
+      url_source: "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001336528&type=13F&dateb=&owner=include&count=10"
+      frequency: quarterly
+      notes: >
+        13F filings públicos — posições trimestrais.
+        CIK Scion Asset Management: 0001336528
+        Revela onde Burry está apostando.
+        Baixar o XML ou HTML e processar.
+
+    - name: "Albert Edwards — Société Générale"
+      type: pdf_manual
+      priority: 2
+      focus: [bear, deflacao, ice_age, macro_global]
+      frequency: monthly
+      notes: >
+        Relatórios ocasionalmente vazam online.
+        Estrategista histórico — Ice Age thesis.
+        Buscar em: SocGen Global Strategy Weekly
+
+    - name: "David Rosenberg — Rosenberg Research"
+      type: pdf_manual
+      priority: 2
+      focus: [bear, recessao, deflacao, bonds]
+      url_source: "https://www.rosenbergresearch.com"
+      frequency: weekly
+      notes: "Alguns relatórios gratuitos disponíveis"
+
+  # --- BULLS ESTRUTURAIS ---
+
+    - name: "Cathie Wood — ARK Invest"
+      type: pdf_manual
+      priority: 2
+      focus: [bull, tech, ai, disrupcao, inovacao]
+      url_source: "https://ark-invest.com/research/"
+      frequency: monthly
+      notes: >
+        Big Ideas report anual — gratuito.
+        Perspectiva bull em AI e tech disruptivo.
+        Importante para balancear bears.
+
+    - name: "Ed Yardeni — Yardeni Research"
+      type: pdf_manual
+      priority: 2
+      focus: [bull, sp500, lucros, macro_eua]
+      url_source: "https://www.yardeni.com/pub/yardenipub.pdf"
+      frequency: weekly
+      notes: "Alguns relatórios gratuitos"
+
+  # --- MACRO PROCESSO ---
+
+    - name: "Ray Dalio — Bridgewater"
+      type: pdf_manual
+      priority: 1
+      focus: [macro, ciclos, debt_cycle, emergentes]
+      url_source: "https://www.linkedin.com/in/raydalio/"
+      frequency: irregular
+      notes: >
+        Publica no LinkedIn — copiar e salvar como PDF.
+        Principles for Dealing with the Changing
+        World Order — framework de ciclos de dívida.
+
+    - name: "Stanley Druckenmiller"
+      type: youtube_transcript
+      priority: 1
+      focus: [macro, liquidez, fed, posicionamento]
+      notes: >
+        Raramente fala — quando fala, é importante.
+        Buscar entrevistas em Real Vision e Macro Voices.
+        13F disponível no SEC.
+
+  # --- COMMODITIES / CONTRA-NARRATIVA ---
+
+    - name: "Goehring & Rozencwajg"
+      type: pdf_manual
+      priority: 2
+      focus: [commodities, recursos_naturais, petroleo, ouro]
+      url_source: "https://www.gramercy.com/research"
+      frequency: quarterly
+      notes: >
+        Quarterly letters gratuitos.
+        Foco em superciclo de commodities.
+        Contra-narrativa à dominância tech.
+
+    - name: "Doomberg Substack"
+      type: pdf_manual
+      priority: 2
+      focus: [energia, commodities, politica, industria]
+      url_source: "https://doomberg.substack.com"
+      frequency: weekly
+      notes: "Alguns artigos gratuitos — capturar os públicos"
+
+  # --- EMERGENTES ---
+
+    - name: "JPMorgan EM Insights"
+      type: pdf_manual
+      priority: 2
+      focus: [emergentes, brasil, china, fluxo_em]
+      frequency: monthly
+      notes: "Michael Cembalest — Eye on the Market"
+
+    - name: "Goldman Sachs EM"
+      type: pdf_manual
+      priority: 2
+      focus: [emergentes, brasil, fluxo, macro_em]
+      frequency: monthly
+      notes: "Relatórios EM ocasionalmente públicos"
+
+  # --- BRASIL ESPECÍFICO ---
+
+    - name: "Banco Central — Relatório Focus"
+      type: pdf_auto
+      priority: 1
+      focus: [brasil, selic, inflacao, expectativas]
+      url_source: "https://www.bcb.gov.br/publicacoes/focus"
+      frequency: weekly
+      notes: "Gratuito — download automático possível"
+
+    - name: "Tesouro Nacional — RAE"
+      type: pdf_manual
+      priority: 2
+      focus: [brasil, fiscal, divida, risco_brasil]
+      frequency: monthly
+
+# ═══════════════════════════════════════
+# TWITTER/X — MONITORAMENTO MANUAL
+# ═══════════════════════════════════════
+
+twitter_watch:
+  bears:
+    - handle: "@michaeljburry"
+      name: "Michael Burry"
+      focus: [bolha, short, sistemico]
+      notes: "Posta raramente mas impacta muito — capturar manualmente"
+
+    - handle: "@jeremygrantham"
+      name: "Jeremy Grantham"
+      focus: [valuations, bolha, clima]
+
+    - handle: "@NourielRoubini"
+      name: "Nouriel Roubini"
+      focus: [macro, recessao, sistemico]
+
+  macro:
+    - handle: "@RayDalio"
+      name: "Ray Dalio"
+      focus: [ciclos, macro, emergentes]
+
+    - handle: "@\Doomberg_"
+      name: "Doomberg"
+      focus: [energia, commodities]
+
+  commodities:
+    - handle: "@KuppyAdventures"
+      name: "Harris Kupperman"
+      focus: [commodities, value, em]
+
+# ═══════════════════════════════════════
+# SEC EDGAR — POSIÇÕES 13F
+# ═══════════════════════════════════════
+
+sec_13f:
+  - name: "Scion Asset Management (Burry)"
+    cik: "0001336528"
+    url: "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001336528&type=13F"
+    frequency: quarterly
+    focus: [short, posicoes, bolha]
+
+  - name: "Druckenmiller — Duquesne"
+    cik: "0001536411"
+    url: "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001536411&type=13F"
+    frequency: quarterly
+    focus: [macro, posicoes]
+
+  - name: "Bridgewater (Dalio)"
+    cik: "0001350694"
+    url: "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001350694&type=13F"
+    frequency: quarterly
+    focus: [macro, emergentes, posicoes]
+
+# ═══════════════════════════════════════
+# CONFIGURAÇÃO DE PROCESSAMENTO
+# ═══════════════════════════════════════
+
+processing:
+  whisper_model: "medium"
+  chunk_size_tokens: 1000
+  chunk_overlap_tokens: 100
+  deepseek_model: "deepseek-chat"
+  max_chunks_per_source: 50
+  language_detect: true
+
+  # Idiomas suportados
+  languages:
+    pt: "português — calls Brasil"
+    en: "inglês — macro global"
