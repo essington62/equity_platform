@@ -340,35 +340,92 @@ def render(s: dict) -> None:
     st.markdown("---")
     st.subheader("📊 Flow Heatmap")
 
+    QUAD_EMOJI = {
+        "LEADING":   "🟢 LEADING",
+        "WEAKENING": "🟡 WEAKENING",
+        "IMPROVING": "🔵 IMPROVING",
+        "LAGGING":   "⚫ LAGGING",
+        "N/A":       "— N/A",
+    }
+
+    # Dark-mode-friendly row background per quadrant
+    QUAD_BG_DARK = {
+        "LEADING":   "#0d2b0d",
+        "WEAKENING": "#2b2700",
+        "IMPROVING": "#0d1f2b",
+        "LAGGING":   "#1c1c1c",
+        "N/A":       "#111111",
+    }
+
+    def _rs_label(rs: float) -> str:
+        if np.isnan(rs):
+            return "—"
+        return f"{rs:.0f}/100"
+
+    def _accel_label(ac: float) -> str:
+        if np.isnan(ac):
+            return "─"
+        if ac >= 70: return "↑↑"
+        if ac >= 55: return "↑"
+        if ac >= 45: return "→"
+        if ac >= 30: return "↓"
+        return "↓↓"
+
     hm_rows = []
     for r in by_rs:
         meta = BUCKET_META.get(r["bucket"], {"icon": "●"})
         vs   = r["vs_acwi"]
         pe   = r["persist"]
+        rs_v = r["rs"] if not np.isnan(r["rs"]) else np.nan
         hm_rows.append({
             "Bucket":    f"{meta['icon']} {r['bucket']}",
-            "RS Score":  round(r["rs"], 1) if not np.isnan(r["rs"]) else 0.0,
+            "RS Score":  _rs_label(rs_v),
+            "_rs_raw":   rs_v,
             "vs ACWI":   f"{vs*100:+.1f}%" if not np.isnan(vs) else "N/A",
-            "Accel":     accel_arrow(r["accel_sc"]),
+            "Accel":     _accel_label(r["accel_sc"]),
             "Persist":   f"{pe*100:.0f}%" if not np.isnan(pe) else "N/A",
             "Crowding":  crowding_emoji(r["crowd"]),
-            "Quadrante": r["quad"],
+            "Quadrante": QUAD_EMOJI.get(r["quad"], r["quad"]),
+            "_quad_key": r["quad"],
         })
 
     df_hm = pd.DataFrame(hm_rows)
 
-    def _highlight_quad(row):
-        bg = QUAD_BG.get(row["Quadrante"], "#ffffff")
-        return [f"background-color: {bg}"] * len(row)
+    def _style_heatmap(row):
+        quad_key = row["_quad_key"]
+        row_bg   = QUAD_BG_DARK.get(quad_key, "#111111")
+        styles   = [f"background-color: {row_bg}; color: #e5e7eb"] * len(row)
 
-    styled_hm = df_hm.style.apply(_highlight_quad, axis=1)
+        # RS Score cell: override color by value
+        rs_raw = row["_rs_raw"]
+        rs_idx = list(row.index).index("RS Score")
+        if not (isinstance(rs_raw, float) and np.isnan(rs_raw)):
+            if rs_raw >= 60:
+                styles[rs_idx] = "background-color: #14532d; color: #bbf7d0; font-weight: 600"
+            elif rs_raw >= 40:
+                styles[rs_idx] = "background-color: #713f12; color: #fef08a; font-weight: 600"
+            else:
+                styles[rs_idx] = "background-color: #7f1d1d; color: #fecaca; font-weight: 600"
+        return styles
+
+    display_cols = ["Bucket", "RS Score", "vs ACWI", "Accel", "Persist", "Crowding", "Quadrante"]
+    styled_hm = (
+        df_hm[display_cols + ["_rs_raw", "_quad_key"]]
+        .style.apply(_style_heatmap, axis=1)
+    )
+
     st.dataframe(
         styled_hm,
         column_config={
-            "RS Score": st.column_config.ProgressColumn(
-                "RS Score", min_value=0, max_value=100, format="%.0f"
-            ),
-            "Quadrante": st.column_config.TextColumn("Quadrante"),
+            "Bucket":    st.column_config.TextColumn("Bucket",    width="medium"),
+            "RS Score":  st.column_config.TextColumn("RS Score",  width="small"),
+            "vs ACWI":   st.column_config.TextColumn("vs ACWI",   width="small"),
+            "Accel":     st.column_config.TextColumn("Accel",     width="small"),
+            "Persist":   st.column_config.TextColumn("Persist",   width="small"),
+            "Crowding":  st.column_config.TextColumn("Crowding",  width="small"),
+            "Quadrante": st.column_config.TextColumn("Quadrante", width="medium"),
+            "_rs_raw":   None,
+            "_quad_key": None,
         },
         use_container_width=True,
         hide_index=True,
@@ -427,43 +484,44 @@ def render(s: dict) -> None:
         all_rz += [p[0] for p in pts]
         all_mz += [p[1] for p in pts]
 
-    xmax = max((abs(v) for v in all_rz), default=3.0) * 1.35
-    ymax = max((abs(v) for v in all_mz), default=3.0) * 1.35
+    xmax = max((abs(v) for v in all_rz), default=3.0) * 1.40
+    ymax = max((abs(v) for v in all_mz), default=3.0) * 1.40
     xmax, ymax = max(xmax, 1.5), max(ymax, 1.5)
 
     fig_rrg = go.Figure()
 
+    # Quadrant fills + axis lines
     fig_rrg.update_layout(
         shapes=[
-            # Quadrant fills
             dict(type="rect", x0=0, x1=xmax, y0=0, y1=ymax,
-                 fillcolor="rgba(134,239,172,0.14)", line_width=0, layer="below"),
+                 fillcolor="rgba(144,238,144,0.08)", line_width=0, layer="below"),
             dict(type="rect", x0=0, x1=xmax, y0=-ymax, y1=0,
-                 fillcolor="rgba(253,224,71,0.14)", line_width=0, layer="below"),
+                 fillcolor="rgba(255,215,0,0.08)", line_width=0, layer="below"),
             dict(type="rect", x0=-xmax, x1=0, y0=-ymax, y1=0,
-                 fillcolor="rgba(203,213,225,0.18)", line_width=0, layer="below"),
+                 fillcolor="rgba(169,169,169,0.06)", line_width=0, layer="below"),
             dict(type="rect", x0=-xmax, x1=0, y0=0, y1=ymax,
-                 fillcolor="rgba(147,197,253,0.14)", line_width=0, layer="below"),
-            # Axis dividers
+                 fillcolor="rgba(135,206,235,0.08)", line_width=0, layer="below"),
             dict(type="line", x0=-xmax, x1=xmax, y0=0, y1=0,
-                 line=dict(color="rgba(100,100,100,0.4)", width=1, dash="dot")),
+                 line=dict(color="rgba(150,150,150,0.30)", width=1, dash="dot")),
             dict(type="line", x0=0, x1=0, y0=-ymax, y1=ymax,
-                 line=dict(color="rgba(100,100,100,0.4)", width=1, dash="dot")),
+                 line=dict(color="rgba(150,150,150,0.30)", width=1, dash="dot")),
         ]
     )
 
+    # Quadrant watermark labels
     for label, x, y in [
-        ("LEADING",   xmax * 0.55,  ymax * 0.75),
-        ("WEAKENING", xmax * 0.55, -ymax * 0.75),
-        ("LAGGING",  -xmax * 0.55, -ymax * 0.75),
-        ("IMPROVING",-xmax * 0.55,  ymax * 0.75),
+        ("LEADING",   xmax * 0.60,  ymax * 0.78),
+        ("WEAKENING", xmax * 0.60, -ymax * 0.78),
+        ("LAGGING",  -xmax * 0.60, -ymax * 0.78),
+        ("IMPROVING",-xmax * 0.60,  ymax * 0.78),
     ]:
         fig_rrg.add_annotation(
             x=x, y=y, text=label, showarrow=False,
-            font=dict(size=15, color="rgba(0,0,0,0.13)"),
+            opacity=0.6,
+            font=dict(size=11, color="#555555"),
         )
 
-    # Trail lines + arrow annotations
+    # Trail lines + direction arrows (only if displacement > 0.1)
     for b, pts in rrg_history.items():
         if len(pts) < 2:
             continue
@@ -474,65 +532,97 @@ def render(s: dict) -> None:
             x=xs, y=ys,
             mode="lines",
             line=dict(color=meta["color"], width=1.5, dash="dot"),
-            opacity=0.45,
+            opacity=0.40,
             showlegend=False,
             hoverinfo="skip",
         ))
         x0_a, y0_a = pts[-2]
         x1_a, y1_a = pts[-1]
-        fig_rrg.add_annotation(
-            x=x1_a, y=y1_a,
-            ax=x0_a, ay=y0_a,
-            axref="x", ayref="y",
-            arrowhead=3,
-            arrowsize=1.5,
-            arrowwidth=2,
-            arrowcolor=meta["color"],
-            showarrow=True,
-        )
+        displacement = ((x1_a - x0_a) ** 2 + (y1_a - y0_a) ** 2) ** 0.5
+        if displacement > 0.1:
+            arrow_w = max(1.5, min(3.0, displacement * 4))
+            fig_rrg.add_annotation(
+                x=x1_a, y=y1_a,
+                ax=x0_a, ay=y0_a,
+                axref="x", ayref="y",
+                arrowhead=3,
+                arrowsize=1.2,
+                arrowwidth=arrow_w,
+                arrowcolor=meta["color"],
+                showarrow=True,
+            )
 
-    # Scatter points
+    # Scatter points — one trace per bucket for legend
     for r in rows:
         rz, mz = r["rz"], r["mz"]
         if np.isnan(rz) or np.isnan(mz):
             continue
         meta  = BUCKET_META.get(r["bucket"], {"icon": "●", "color": "#888888"})
         rs_v  = r["rs"] if not np.isnan(r["rs"]) else 30.0
-        size  = max(14, min(44, rs_v * 0.44))
+        size  = max(20, min(50, rs_v * 0.50))
+        quad  = r["quad"]
+        rs_lbl = f"{rs_v:.0f}/100" if not np.isnan(rs_v) else "N/A"
+
+        # Short bucket name (no emoji, no underscores)
+        short_name = r["bucket"].replace("_", " ")
+
         fig_rrg.add_trace(go.Scatter(
             x=[rz], y=[mz],
             mode="markers+text",
             marker=dict(
-                size=size, color=meta["color"], opacity=0.85,
-                line=dict(color="white", width=1.5),
+                size=size,
+                color=meta["color"],
+                opacity=1.0,
+                line=dict(color="rgba(255,255,255,0.6)", width=2),
             ),
-            text=[f"{meta['icon']} {r['bucket']}"],
+            text=[short_name],
             textposition="top center",
-            textfont=dict(size=11),
-            name=r["bucket"],
+            textfont=dict(size=10, color="#888888", family="Arial, sans-serif"),
+            name=f"{meta['icon']} {r['bucket']} — {quad}",
+            legendgroup=r["bucket"],
+            showlegend=True,
             hovertemplate=(
                 f"<b>{meta['icon']} {r['bucket']}</b><br>"
                 f"RS Ratio: {rz:.2f}<br>"
                 f"RS Momentum: {mz:.2f}<br>"
-                f"RS Score: {r['rs']:.0f}/100<br>"
-                f"Quadrante: {r['quad']}<extra></extra>"
+                f"Quadrante: {quad}<br>"
+                f"RS Score: {rs_lbl}"
+                f"<extra></extra>"
             ),
         ))
 
     fig_rrg.update_layout(
         xaxis=dict(
-            title="RS Ratio (força relativa vs ACWI)",
-            range=[-xmax, xmax], zeroline=False,
+            title=dict(text="RS Ratio (força relativa vs ACWI)", font=dict(color="#888888", size=12)),
+            range=[-xmax, xmax],
+            zeroline=False,
+            gridcolor="rgba(255,255,255,0.05)",
+            tickfont=dict(color="#666666", size=11),
         ),
         yaxis=dict(
-            title="RS Momentum (aceleração da força)",
-            range=[-ymax, ymax], zeroline=False,
+            title=dict(text="RS Momentum (aceleração da força)", font=dict(color="#888888", size=12)),
+            range=[-ymax, ymax],
+            zeroline=False,
+            gridcolor="rgba(255,255,255,0.05)",
+            tickfont=dict(color="#666666", size=11),
         ),
-        height=560,
-        showlegend=False,
-        plot_bgcolor="white",
-        paper_bgcolor="white",
-        margin=dict(l=20, r=20, t=20, b=20),
+        height=580,
+        legend=dict(
+            orientation="v",
+            x=1.01,
+            y=1.0,
+            xanchor="left",
+            yanchor="top",
+            bgcolor="rgba(0,0,0,0)",
+            bordercolor="rgba(150,150,150,0.2)",
+            borderwidth=1,
+            font=dict(size=11, color="#666666"),
+            itemsizing="constant",
+        ),
+        showlegend=True,
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
+        margin=dict(l=20, r=180, t=20, b=20),
     )
     st.plotly_chart(fig_rrg, use_container_width=True)
 
